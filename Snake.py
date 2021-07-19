@@ -1,3 +1,10 @@
+#
+# SIMPLE SNAKE GAME USING PYGAME
+#
+# Controls - arrow keys
+# Requirements: pygame
+#
+
 import pygame
 import random
 
@@ -7,31 +14,48 @@ clock = pygame.time.Clock()
 # Screen and game size:
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
+GAME_WIDTH = 600
+GAME_HEIGHT = 400
 GAME_CHANGE = 100
-GAME_WIDTH = SCREEN_WIDTH - GAME_CHANGE
-GAME_HEIGHT = SCREEN_HEIGHT - GAME_CHANGE
-display = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # Colors:
 BLACK = (0, 0, 0)
 RED = (213, 50, 80)
 GREEN = (154, 197, 2)
 BLUE = (46, 90, 195)
+LIGHT_BLUE = (56, 120, 195)
 
-# Size and speed:
+# Snake size and speed:
 SNAKE_BLOCK = 10
 SNAKE_SPEED = 12
 
 # Font and description:
 pygame.display.set_caption('Simple Snake Game')
 FONT_ARIAL = pygame.font.SysFont("arial", SCREEN_WIDTH // 25)
-FONT_COMICSANSMS = pygame.font.SysFont("comicsansms", SCREEN_WIDTH // 22)
+FONT_COMICSANSMS = pygame.font.SysFont("comicsansms", SCREEN_WIDTH // 23)
+
+# Initialization:
+display = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+GAME_WIDTH = (GAME_WIDTH // SNAKE_BLOCK) * SNAKE_BLOCK
+GAME_HEIGHT = (GAME_HEIGHT // SNAKE_BLOCK) * SNAKE_BLOCK
+GAME_CHANGE = (GAME_CHANGE // SNAKE_BLOCK) * SNAKE_BLOCK
+END_Y = GAME_HEIGHT
+END_X = GAME_WIDTH + SNAKE_BLOCK
+GAME_WIDTH += GAME_CHANGE
+GAME_HEIGHT += GAME_CHANGE
 
 
 # Functions:
-def our_snake(snake_block, snake_list):
+def draw_snake(snake_block, snake_list):
+    one = True
     for x in snake_list:
-        pygame.draw.rect(display, BLUE, [x[0], x[1], snake_block, snake_block])
+        if one:
+            pygame.draw.rect(display, BLUE, [x[0], x[1], snake_block, snake_block])
+            one = False
+        else:
+            pygame.draw.rect(display, LIGHT_BLUE, [x[0], x[1], snake_block, snake_block])
+            one = True
+    pygame.draw.rect(display, BLUE, [snake_list[0][0], snake_list[0][1], snake_block, snake_block])
 
 
 def message(msg, color, font, xy):
@@ -53,14 +77,15 @@ def your_best(best, score):
 
 
 def game_draw():
+    # pygame.draw.rect(display, RED, [start_x, start_y, end_x, end_y])
     # Width up:
-    pygame.draw.rect(display, BLACK, [GAME_CHANGE - 10, GAME_CHANGE - 10, GAME_WIDTH - 90, SNAKE_BLOCK])
+    pygame.draw.rect(display, BLACK, [GAME_CHANGE - SNAKE_BLOCK, GAME_CHANGE - SNAKE_BLOCK, END_X, SNAKE_BLOCK])
     # Width down:
-    pygame.draw.rect(display, BLACK, [GAME_CHANGE - 10, GAME_HEIGHT, GAME_WIDTH - 90, SNAKE_BLOCK])
+    pygame.draw.rect(display, BLACK, [GAME_CHANGE - SNAKE_BLOCK, GAME_HEIGHT, END_X + SNAKE_BLOCK, SNAKE_BLOCK])
     # Height LEFT:
-    pygame.draw.rect(display, BLACK, [GAME_CHANGE - 10, GAME_CHANGE, SNAKE_BLOCK, GAME_HEIGHT - 100])
+    pygame.draw.rect(display, BLACK, [GAME_CHANGE - SNAKE_BLOCK, GAME_CHANGE, SNAKE_BLOCK, END_Y])
     # Height RIGHT:
-    pygame.draw.rect(display, BLACK, [GAME_WIDTH, GAME_CHANGE - 10, SNAKE_BLOCK, GAME_HEIGHT - 80])
+    pygame.draw.rect(display, BLACK, [GAME_WIDTH, GAME_CHANGE - SNAKE_BLOCK, SNAKE_BLOCK, END_Y + SNAKE_BLOCK])
 
 
 def game_over(best_score, length_of_snake):
@@ -85,8 +110,8 @@ def game_loop(best_score):
     game_continue = True
 
     # The place where the snake start:
-    snake_x = GAME_WIDTH // 2 + GAME_CHANGE
-    snake_y = GAME_HEIGHT // 2 + GAME_CHANGE
+    snake_x = (GAME_WIDTH // 2 + GAME_CHANGE) // SNAKE_BLOCK * SNAKE_BLOCK
+    snake_y = (GAME_HEIGHT // 2 + GAME_CHANGE) // SNAKE_BLOCK * SNAKE_BLOCK
 
     # Direction of movement:
     move_x = 0
@@ -95,8 +120,8 @@ def game_loop(best_score):
     snake_list = []
     length_of_snake = 1
 
-    food_x = round(random.randrange(GAME_CHANGE, GAME_WIDTH - SNAKE_BLOCK) / 10.0) * 10.0
-    food_y = round(random.randrange(GAME_CHANGE, GAME_HEIGHT - SNAKE_BLOCK) / 10.0) * 10.0
+    food_x = round(random.randrange(GAME_CHANGE, GAME_WIDTH - SNAKE_BLOCK) // SNAKE_BLOCK) * SNAKE_BLOCK
+    food_y = round(random.randrange(GAME_CHANGE, GAME_HEIGHT - SNAKE_BLOCK) // SNAKE_BLOCK) * SNAKE_BLOCK
 
     while game_continue:
 
@@ -128,9 +153,7 @@ def game_loop(best_score):
         display.fill(GREEN)
         game_draw()
         pygame.draw.rect(display, RED, [food_x, food_y, SNAKE_BLOCK, SNAKE_BLOCK])
-        snake_head = []
-        snake_head.append(snake_x)
-        snake_head.append(snake_y)
+        snake_head = [snake_x, snake_y]
         snake_list.append(snake_head)
         if len(snake_list) > length_of_snake:
             del snake_list[0]
@@ -140,15 +163,15 @@ def game_loop(best_score):
                 game_over(length_of_snake, best_score)
                 game_continue = False
 
-        our_snake(SNAKE_BLOCK, snake_list)
+        draw_snake(SNAKE_BLOCK, snake_list)
         your_score(length_of_snake)
         best_score = your_best(best_score, length_of_snake)
 
         pygame.display.update()
 
         if snake_x == food_x and snake_y == food_y:
-            food_x = round(random.randrange(GAME_CHANGE, GAME_WIDTH - SNAKE_BLOCK) / 10.0) * 10.0
-            food_y = round(random.randrange(GAME_CHANGE, GAME_HEIGHT - SNAKE_BLOCK) / 10.0) * 10.0
+            food_x = round(random.randrange(GAME_CHANGE, GAME_WIDTH - SNAKE_BLOCK) // SNAKE_BLOCK) * SNAKE_BLOCK
+            food_y = round(random.randrange(GAME_CHANGE, GAME_HEIGHT - SNAKE_BLOCK) // SNAKE_BLOCK) * SNAKE_BLOCK
             length_of_snake += 1
 
         clock.tick(SNAKE_SPEED)

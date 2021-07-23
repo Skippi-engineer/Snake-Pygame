@@ -26,7 +26,7 @@ BLUE = (46, 90, 195)
 LIGHT_BLUE = (56, 120, 195)
 
 # Snake size and speed:
-SNAKE_BLOCK = 10
+SNAKE_BLOCK = 15
 SNAKE_SPEED = 12
 
 # Font and description:
@@ -47,15 +47,19 @@ GAME_HEIGHT += GAME_CHANGE
 
 # Functions:
 def draw_snake(snake_block, snake_list):
-    one = True
+    if len(snake_list) % 2:
+        even = True
+    else:
+        even = False
+
     for x in snake_list:
-        if one:
+        if even:
             pygame.draw.rect(display, BLUE, [x[0], x[1], snake_block, snake_block])
-            one = False
+            even = False
         else:
             pygame.draw.rect(display, LIGHT_BLUE, [x[0], x[1], snake_block, snake_block])
-            one = True
-    pygame.draw.rect(display, BLUE, [snake_list[0][0], snake_list[0][1], snake_block, snake_block])
+            even = True
+    # pygame.draw.rect(display, BLUE, [snake_list[-1][0], snake_list[-1][1], snake_block, snake_block])
 
 
 def message(msg, color, font, xy):

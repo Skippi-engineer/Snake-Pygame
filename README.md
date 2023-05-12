@@ -1,5 +1,5 @@
 # Snake-Pygame
 Simple snake game.
 
-Requirements, wymagania:
+Requirements:
 pygame
